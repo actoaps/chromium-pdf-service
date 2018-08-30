@@ -100,7 +100,7 @@ public class PdfController {
 
         return Try.of(() -> page.navigate(requestDescription.getUrl()))
                 .mapTry(x -> queue.take())
-                .mapTry(x -> Option.of(queue.poll(requestDescription.getTimeout(), TimeUnit.MILLISECONDS)).getOrElse(x))
+                .mapTry(x -> Option.of(queue.poll(Option.of(requestDescription.getTimeout()).getOrElse(250L), TimeUnit.MILLISECONDS)).getOrElse(x))
                 .andFinally(() -> {
                     chromeService.closeTab(tab);
                     launcher.close();
