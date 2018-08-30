@@ -8,6 +8,7 @@ import com.github.kklisura.cdt.services.ChromeService;
 import com.github.kklisura.cdt.services.types.ChromeTab;
 import dk.acto.web.pdf.dto.ActoConf;
 import dk.acto.web.pdf.dto.RequestDescription;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,16 +90,17 @@ public class PdfController {
         final ChromeDevToolsService devToolsService = chromeService.createDevToolsService(tab);
         final Page page = devToolsService.getPage();
 
-        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(1);
+        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
 
         page.onFrameStoppedLoading(
-                event -> queue.add(page.printToPDF())
+                event ->queue.add(page.printToPDF())
         );
 
         page.enable();
 
         return Try.of(() -> page.navigate(requestDescription.getUrl()))
                 .mapTry(x -> queue.take())
+                .mapTry(x -> Option.of(queue.poll(requestDescription.getTimeout(), TimeUnit.MILLISECONDS)).getOrElse(x))
                 .andFinally(() -> {
                     chromeService.closeTab(tab);
                     launcher.close();

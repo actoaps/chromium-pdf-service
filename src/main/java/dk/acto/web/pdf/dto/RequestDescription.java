@@ -8,5 +8,6 @@ import lombok.Data;
 public class RequestDescription {
     private final String url;
     private final String file;
+    private final long timeout;
 
 }
