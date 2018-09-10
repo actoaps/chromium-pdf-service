@@ -21,6 +21,7 @@ import java.util.Base64;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,7 +84,6 @@ public class PdfController {
                 .disableGpu(true)
                 .headless(true)
                 .additionalArguments("no-sandbox", true)
-                .additionalArguments("run-all-compositor-stages-before-draw", true)
                 .build());
 
         final ChromeTab tab = chromeService.createTab();
@@ -91,10 +91,14 @@ public class PdfController {
         final ChromeDevToolsService devToolsService = chromeService.createDevToolsService(tab);
         final Page page = devToolsService.getPage();
 
-        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(1);
+        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
 
-        page.captureScreenshot();
-        queue.add(page.printToPDF());
+        page.enable();
+        page.setLifecycleEventsEnabled(true);
+        page.onFrameStoppedLoading(x -> page.onLifecycleEvent( y ->
+                Option.of(y).filter(z -> "networkIdle".equals(z.getName()))
+                .map(z -> queue.add(page.printToPDF()))
+        ));
 
         return Try.of(() -> page.navigate(requestDescription.getUrl()))
                 .mapTry(x -> queue.take())
