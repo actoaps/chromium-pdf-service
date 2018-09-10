@@ -83,6 +83,7 @@ public class PdfController {
                 .disableGpu(true)
                 .headless(true)
                 .additionalArguments("no-sandbox", true)
+                .additionalArguments("run-all-compositor-stages-before-draw", true)
                 .build());
 
         final ChromeTab tab = chromeService.createTab();
@@ -90,17 +91,13 @@ public class PdfController {
         final ChromeDevToolsService devToolsService = chromeService.createDevToolsService(tab);
         final Page page = devToolsService.getPage();
 
-        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
+        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(1);
 
-        page.onFrameStoppedLoading(
-                event ->queue.add(page.printToPDF())
-        );
-
-        page.enable();
+        page.captureScreenshot();
+        queue.add(page.printToPDF());
 
         return Try.of(() -> page.navigate(requestDescription.getUrl()))
                 .mapTry(x -> queue.take())
-                .mapTry(x -> Option.of(queue.poll(Option.of(requestDescription.getTimeout()).getOrElse(250L), TimeUnit.MILLISECONDS)).getOrElse(x))
                 .andFinally(() -> {
                     chromeService.closeTab(tab);
                     launcher.close();

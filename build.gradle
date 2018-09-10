@@ -10,8 +10,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.9
-targetCompatibility = 1.9
+sourceCompatibility = 1.10
+targetCompatibility = 1.10
 
 bootJar.enabled = false
 jar.enabled = true
@@ -33,4 +33,3 @@ dependencies {
     implementation 'javax.jws:jsr181-api:1.0-MR1'
     implementation 'javax.activation:activation:1.1.1'
 }
-
