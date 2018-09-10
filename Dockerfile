@@ -1,4 +1,4 @@
-FROM openjdk:9.0.1-11-slim
+FROM openjdk:10.0.2-slim
 RUN apt-get update && apt-get install -y chromium
 ADD build/distributions/chromium-pdf-service.tar ./
 WORKDIR ./chromium-pdf-service
