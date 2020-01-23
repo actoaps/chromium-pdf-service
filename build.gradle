@@ -10,8 +10,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.10
-targetCompatibility = 1.10
+sourceCompatibility = 12
+targetCompatibility = 12
 
 bootJar.enabled = false
 jar.enabled = true
@@ -20,8 +20,8 @@ mainClassName = 'dk.acto.web.pdf.Main'
 applicationDefaultJvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5888"]
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok:1.18.0'
-    compileOnly 'org.projectlombok:lombok:1.18.0'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
 
     implementation "org.springframework.boot:spring-boot-starter-jersey"
     implementation 'io.vavr:vavr:0.9.2'
