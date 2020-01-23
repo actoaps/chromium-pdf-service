@@ -29,11 +29,13 @@ jobs:
 
       - name: Release to Docker
         run: |
-          docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
           export BUILD_ID=$(git rev-list --no-merges --count $GITHUB_REF)
-          docker build -t actoaps/web-dispatcher ./auth
-          docker tag actoaps/web-dispatcher registry.hub.docker.com/actoaps/web-dispatcher:1.0.$BUILD_ID
-          docker push registry.hub.docker.com/actoaps/web-dispatcher:1.0.$BUILD_ID
+
+          docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+          docker build -t actoaps/chromium-pdf-gen:1.0.$BUILD_ID -t actoaps/chromium-pdf-gen:latest .
+
+          docker push actoaps/chromium-pdf-gen:1.0.$BUILD_ID
+          docker push actoaps/chromium-pdf-gen:latest
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
