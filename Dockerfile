@@ -1,7 +1,6 @@
 FROM openjdk:13-jdk-oraclelinux7
-RUN yum install -y wget unzip
-RUN yum-config-manager --enable ol7_optional_latest
-RUN yum install -y chromium
+COPY chrome-chrome.repo /etc/yum.repos.d/google-chrome.repo
+RUN yum install -y google-chrome-stable
 ADD build/distributions/chromium-pdf-service.tar ./
 WORKDIR ./chromium-pdf-service
 EXPOSE 8888
