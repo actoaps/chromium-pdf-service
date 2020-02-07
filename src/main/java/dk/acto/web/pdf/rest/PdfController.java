@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class PdfController {
     private static final Pattern auth = Pattern.compile("^([Bb]earer\\s+)?(.+)$");
+    private static final String LATCH_NAME = "networkIdle";
 
     private final ActoConf actoConf;
 
@@ -77,31 +79,49 @@ public class PdfController {
 
     private Response generatePDF(final RequestDescription requestDescription) {
 
-        final ChromeLauncher launcher = new ChromeLauncher();
-
-        final ChromeService chromeService = launcher.launch(ChromeArguments.builder()
-                .noFirstRun(true)
-                .disableGpu(true)
-                .headless(true)
+        final ChromeArguments chromeArguments = ChromeArguments.builder()
+                .noFirstRun()
+                .disableGpu()
+                .headless()
+                .disableBackgroundNetworking()
+                .disableDefaultApps()
+                .disableExtensions()
+                .disableSync()
+                .disableTranslate()
+                .hideScrollbars()
+                .metricsRecordingOnly()
+                .muteAudio()
+                .safebrowsingDisableAutoUpdate()
                 .additionalArguments("no-sandbox", true)
-                .build());
+                .additionalArguments("ignore-certificate-errors", true)
+                .additionalArguments("ignore-ssl-errors", true)
+                .additionalArguments("ignore-certificate-errors-spki-list", true)
+                .additionalArguments("disable-dev-shm-usage", true)
+                .additionalArguments("enable-automation", true)
+                .additionalArguments("disable-features", "site-per-process,TranslateUI")
+                .additionalArguments("enable-features", "NetworkService,NetworkServiceInProcess")
+                .build();
+
+        final ChromeLauncher launcher = new ChromeLauncher();
+        final ChromeService chromeService = launcher.launch(chromeArguments);
 
         final ChromeTab tab = chromeService.createTab();
 
         final ChromeDevToolsService devToolsService = chromeService.createDevToolsService(tab);
-        final Page page = devToolsService.getPage();
-
-        final BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
+        final var latch = new CountDownLatch(1);
+        final var page = devToolsService.getPage();
+        page.setLifecycleEventsEnabled(true);
+        page.onLifecycleEvent(x -> {
+            if (x.getName().equals(LATCH_NAME)) {
+                latch.countDown();
+            }
+        });
 
         page.enable();
-        page.setLifecycleEventsEnabled(true);
-        page.onFrameStoppedLoading(x -> page.onLifecycleEvent( y ->
-                Option.of(y).filter(z -> "networkIdle".equals(z.getName()))
-                .map(z -> queue.add(page.printToPDF()))
-        ));
 
         return Try.of(() -> page.navigate(requestDescription.getUrl()))
-                .mapTry(x -> queue.take())
+                .andThenTry(latch::await)
+                .map(x -> page.printToPDF())
                 .andFinally(() -> {
                     chromeService.closeTab(tab);
                     launcher.close();
