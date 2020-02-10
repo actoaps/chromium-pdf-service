@@ -128,7 +128,7 @@ public class PdfController {
                     devToolsService.waitUntilClosed();
                 })
                 .map(x -> Response
-                        .ok(Base64.getDecoder().decode(x), MediaType.APPLICATION_OCTET_STREAM)
+                        .ok(Base64.getDecoder().decode(x.getData()), MediaType.APPLICATION_OCTET_STREAM)
                         .header("content-disposition", String.format("attachment; filename = %s", requestDescription.getFile()))
                         .build())
                 .onFailure(x -> log.error(String.format("Caught Exception for %s / %s", requestDescription.getUrl(), requestDescription.getFile()), x))
