@@ -108,7 +108,7 @@ public class PdfController {
         final ChromeTab tab = chromeService.createTab();
 
         final ChromeDevToolsService devToolsService = chromeService.createDevToolsService(tab);
-        final var latch = new CountDownLatch(2);
+        final var latch = new CountDownLatch(1);
         final var page = devToolsService.getPage();
         page.setLifecycleEventsEnabled(true);
         page.onLifecycleEvent(x -> {
