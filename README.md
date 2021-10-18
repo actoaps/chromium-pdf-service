@@ -47,4 +47,4 @@ The POST endpoint is ```/``` and requires the following JSON in the body
 
 Otherwise it is identical to the GET version.
 
-You must send and Authorization Header with the "secret" Bearer token you set in ```ACTO_CONF``` or you will get a 401.
+You must send and Authorization Header with the "secret" Bearer token you set in ```ACTO_CONF``` or you will get a 401. 
