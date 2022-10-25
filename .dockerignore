@@ -1,0 +1,5 @@
+**/*
+
+!build/distributions/chromium-pdf-service.tar
+!google-chrome.repo
+!NotoColorEmoji.ttf

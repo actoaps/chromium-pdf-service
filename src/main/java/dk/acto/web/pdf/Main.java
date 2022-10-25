@@ -1,17 +1,12 @@
 package dk.acto.web.pdf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.acto.web.pdf.dto.ActoConf;
-import io.vavr.control.Try;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-@EnableAutoConfiguration
-@Slf4j
 public class Main {
     public static void main(String[] args) {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
@@ -19,13 +14,13 @@ public class Main {
     }
 
     @Bean
-    public static ActoConf fromEnv() {
-        final ObjectMapper om = new ObjectMapper();
-        String conf = System.getenv().get("ACTO_CONF");
-        return Try.of( () -> om.readValue(conf, ActoConf.class))
-                .onFailure(x -> log.warn(
-                        String.format("Missing ACTO_CONF environment variable. Using default: %s", Try.of(() -> om.writeValueAsString(ActoConf.DEFAULT)).get())
-                ))
-                .getOrElse(ActoConf.DEFAULT);
+    public ActoConf actoConf(@Value("${ENABLED_GET:true}") final Boolean enabledGet,
+                             @Value("${ENABLED_POST:true}") final Boolean enabledPost,
+                             @Value("${SECRET:secret}") final String secret) {
+        return ActoConf.builder()
+                .enabledGet(enabledGet)
+                .enabledPost(enabledPost)
+                .secret(secret)
+                .build();
     }
 }
