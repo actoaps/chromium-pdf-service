@@ -3,9 +3,9 @@ version: "3.8"
 services:
   pdf:
     build: .
-    container_name: pdf-pdf
+    container_name: chromium-pdf-service
     ports:
-      - "8085:8080"
+      - "8080:8080"
       - "6001:6001"
     environment:
       - ENABLED_GET=true
