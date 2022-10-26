@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
@@ -27,17 +28,14 @@ public class SecretValidator extends GenericFilterBean {
         var cast = (HttpServletRequest) request;
 
         Optional.ofNullable(cast.getHeader("Authorization"))
-                .map(this::validateAuth)
+                .map(x -> Try.of(() -> auth.matcher(x)).getOrNull())
+                .filter(Matcher::matches)
+                .map(x -> x.group(2))
+                .filter(x -> x.equals(actoConf.getSecret()))
                 .ifPresent(x -> SecurityContextHolder.getContext().
                         setAuthentication(new AnonymousAuth()));
 
         chain.doFilter(request, response);
     }
 
-    private boolean validateAuth(String authString) {
-        return Try.of(() -> auth.matcher(authString))
-                .map(x -> x.group(2))
-                .filter(x -> x.equals(actoConf.getSecret()))
-                .isSuccess();
-    }
 }
