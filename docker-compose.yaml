@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  pdf:
+    build: .
+    container_name: chromium-pdf-service
+    ports:
+      - "8080:8080"
+      - "6001:6001"
+    environment:
+      - ENABLED_GET=true
+      - ENABLED_POST=true
+      - SECRET=sec

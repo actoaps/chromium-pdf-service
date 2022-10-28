@@ -2,10 +2,11 @@ package dk.acto.web.pdf.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class RequestDescription {
-    private final String url;
-    private final String file;
+    String url;
+    String file;
 }
