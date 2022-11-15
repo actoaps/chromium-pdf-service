@@ -17,12 +17,12 @@ jobs:
 
       - name: Calculate version
         id: spell
-        uses: actoaps/version-spell@v3
+        uses: actoaps/version-spell@v5
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: corretto
+          distribution: 'corretto'
           java-version: 17
           cache: gradle
 
@@ -40,7 +40,6 @@ jobs:
           platforms: arm64/v8,amd64
 
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to DockerHub
@@ -52,7 +51,9 @@ jobs:
       - name: Build sso image and publish to Docker
         uses: docker/build-push-action@v3
         with:
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
           context: .
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           push: true
           tags: actoaps/chromium-pdf-gen:${{ steps.spell.outputs.version }},actoaps/chromium-pdf-gen:latest
