@@ -33,4 +33,4 @@ The POST endpoint is `/` and requires the following JSON in the body
     "file": "acto.pdf"
 }
 ```
-Otherwise it is identical to the GET version.
+Otherwise it is identical to the GET version. 
