@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,6 @@ public class PdfService {
                 .disableSync()
                 .disableTranslate()
                 .hideScrollbars()
-                .metricsRecordingOnly()
                 .disablePromptOnRepost()
                 .disableHangMonitor()
                 .disableClientSidePhishingDetection()
@@ -38,9 +38,7 @@ public class PdfService {
                 .safebrowsingDisableAutoUpdate()
                 .additionalArguments("run-all-compositor-stages-before-draw", true)
                 .additionalArguments("no-sandbox", true)
-                .additionalArguments("ignore-certificate-errors", true)
-                .additionalArguments("ignore-ssl-errors", true)
-                .additionalArguments("ignore-certificate-errors-spki-list", true)
+                .additionalArguments("disable-software-rasterizer", true)
                 .additionalArguments("disable-dev-shm-usage", true)
                 .additionalArguments("enable-automation", true)
                 .additionalArguments("disable-features", "site-per-process,TranslateUI")
@@ -55,8 +53,12 @@ public class PdfService {
         final var devToolsService = chromeService.createDevToolsService(tab);
         final var latch = new CountDownLatch(1);
         final var page = devToolsService.getPage();
-        page.onLoadEventFired(x -> latch.countDown());
-
+        page.setLifecycleEventsEnabled(true);
+        page.onLifecycleEvent(x -> {
+            if (x.getName().equals("InteractiveTime")) {
+                latch.countDown();
+            }
+        });
         page.enable();
 
         return Try.of(() -> page.navigate(url))
@@ -66,6 +68,7 @@ public class PdfService {
                 .map(ByteArrayResource::new)
                 .map(x -> ResponseEntity.ok().
                         header("Content-Disposition", String.format("attachment; filename=\"%s\"", filename)).
+                        contentType(MediaType.APPLICATION_PDF).
                         body((Resource) x))
                 .andFinally(() -> {
                     chromeService.closeTab(tab);

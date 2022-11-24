@@ -52,6 +52,6 @@ jobs:
           cache-to: type=gha,mode=max
           cache-from: type=gha
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: actoaps/chromium-pdf-gen:${{ steps.spell.outputs.version }},actoaps/chromium-pdf-gen:latest
