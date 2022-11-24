@@ -10,4 +10,4 @@ services:
     environment:
       - ENABLED_GET=true
       - ENABLED_POST=true
-      - SECRET=sec
+      - SECRET=secret
