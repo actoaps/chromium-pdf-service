@@ -29,7 +29,7 @@ and `{filename}` is the name of the file you want back.
 The POST endpoint is `/` and requires the following JSON in the body
 ```JSON
 {
-    "url": "https;//www.acto.dk/",
+    "url": "https://www.acto.dk/",
     "file": "acto.pdf"
 }
 ```
