@@ -49,32 +49,33 @@ public class PdfService {
 
             final var tab = chromeService.createTab();
 
-            final var devToolsService = chromeService.createDevToolsService(tab);
-            final var latch = new CountDownLatch(1);
-            final var page = devToolsService.getPage();
-            page.setLifecycleEventsEnabled(true);
-            page.onLifecycleEvent(x -> {
-                if (x.getName().equals("InteractiveTime")) {
-                    latch.countDown();
-                }
-            });
-            page.enable();
+            try (var devToolsService = chromeService.createDevToolsService(tab)) {
+                final var latch = new CountDownLatch(1);
+                final var page = devToolsService.getPage();
+                page.setLifecycleEventsEnabled(true);
+                page.onLifecycleEvent(x -> {
+                    if (x.getName().equals("InteractiveTime")) {
+                        latch.countDown();
+                    }
+                });
+                page.enable();
 
-            return Try.of(() -> page.navigate(url))
-                    .andThenTry(latch::await)
-                    .map(x -> page.printToPDF())
-                    .map(x -> Base64.getDecoder().decode(x.getData()))
-                    .map(ByteArrayResource::new)
-                    .map(x -> ResponseEntity.ok().
-                            header("Content-Disposition", String.format("attachment; filename=\"%s\"", filename)).
-                            body((Resource) x))
-                    .andFinally(() -> {
-                        chromeService.closeTab(tab);
-                        launcher.close();
-                        devToolsService.close();
-                    })
-                    .onFailure(x -> log.error(String.format("Caught Exception for %s / %s", url, filename), x))
-                    .getOrElseThrow(InvalidPDFPage::new);
+                return Try.of(() -> page.navigate(url))
+                        .andThenTry(latch::await)
+                        .map(x -> page.printToPDF())
+                        .map(x -> Base64.getDecoder().decode(x.getData()))
+                        .map(ByteArrayResource::new)
+                        .map(x -> ResponseEntity.ok().
+                                header("Content-Disposition", String.format("attachment; filename=\"%s\"", filename)).
+                                body((Resource) x))
+                        .andFinally(() -> {
+                            chromeService.closeTab(tab);
+                            launcher.close();
+                            devToolsService.close();
+                        })
+                        .onFailure(x -> log.error(String.format("Caught Exception for %s / %s", url, filename), x))
+                        .getOrElseThrow(InvalidPDFPage::new);
+            }
         }
     }
 }
