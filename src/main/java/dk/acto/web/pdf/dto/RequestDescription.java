@@ -1,7 +1,6 @@
 package dk.acto.web.pdf.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 
 @Value

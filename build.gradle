@@ -1,12 +1,12 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.springframework.boot' version '2.7.5'
+    id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.sonarqube' version '3.5.0.2730' apply false
 }
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
@@ -20,11 +20,27 @@ mainClassName = 'dk.acto.web.pdf.Main'
 applicationDefaultJvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:6001"]
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'io.vavr:vavr:0.10.4'
     implementation 'com.github.kklisura.cdt:cdt-java-client:4.0.0'
+}
+
+
+
+if (System.properties['sonar.login'] != null) {
+    apply plugin: 'org.sonarqube'
+
+    sonar {
+        properties {
+            property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco"
+        }
+    }
+
+    build {
+        finalizedBy tasks.sonar
+    }
 }
