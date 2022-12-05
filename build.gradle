@@ -1,12 +1,11 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.springframework.boot' version '2.7.5'
+    id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
@@ -20,8 +19,8 @@ mainClassName = 'dk.acto.web.pdf.Main'
 applicationDefaultJvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:6001"]
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
