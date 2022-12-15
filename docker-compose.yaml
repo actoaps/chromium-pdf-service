@@ -11,3 +11,4 @@ services:
       - ENABLED_GET=true
       - ENABLED_POST=true
       - SECRET=secret
+      - PDF_BUFFER_SIZE_MB=128
