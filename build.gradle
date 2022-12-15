@@ -29,8 +29,6 @@ dependencies {
     implementation 'com.github.kklisura.cdt:cdt-java-client:4.0.0'
 }
 
-
-
 if (System.properties['sonar.login'] != null) {
     apply plugin: 'org.sonarqube'
 

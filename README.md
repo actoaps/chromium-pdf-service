@@ -9,8 +9,12 @@ For documentation on v1 see the [v1 README file](https://github.com/actoaps/chro
 Configuration is supplied through environment variables. It let's you configure three parameters:
 
 * ENABLED_GET - Whether the GET endpoint is enabled (default `true`).
-* ENABLED_POST - Whether the POST endpoint is enabled (default `true`)
+* ENABLED_POST - Whether the POST endpoint is enabled (default `true`).
 * SECRET - The Authorization bearer token you must send to the service (default `secret`).
+* PDF_BUFFER_SIZE_MB - The Chrome WS buffer size. Too small of a buffer will cause requests surpassing the limit to
+hang indefinitely. Read more [here](https://github.com/kklisura/chrome-devtools-java-client#api-hangs-ie-when-printing-pdfs)
+(optional).
+* CRHOME_PATH - The path to the Chrome/Chromium binary. If unset, it will try to detect it automatically (optional).
 
 ## Using The Service
 The service by default runs on port 8080. The simplest way to change this (other than in the code), is remapping it in
