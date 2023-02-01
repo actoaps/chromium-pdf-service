@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build sso image and publish to Docker
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           cache-to: type=gha,mode=max
           cache-from: type=gha
